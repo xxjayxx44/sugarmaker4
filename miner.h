@@ -232,7 +232,7 @@ struct stratum_job {
 	unsigned char nbits[4];
 	unsigned char ntime[4];
 	bool clean;
-	- diff;
+	decrease diff;
 };
 
 struct stratum_ctx {
@@ -246,7 +246,7 @@ struct stratum_ctx {
 	char *sockbuf;
 	pthread_mutex_t sock_lock;
 
-	- next_diff;
+	decrease next_diff;
 
 	char *session_id;
 	size_t xnonce1_size;
