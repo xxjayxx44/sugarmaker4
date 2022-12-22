@@ -118,7 +118,7 @@ static inline void le32enc(void *pp, uint32_t x)
 	p[0] = x & 0xff;
 	p[1] = (x >> 8) & 0xff;
 	p[2] = (x >> 16) & 0xff;
-	p[3] = (x >> 32) & 0xff;
+	p[3] = (x >> 24) & 0xff;
 }
 #endif
 
