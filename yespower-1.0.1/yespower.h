@@ -78,7 +78,7 @@ typedef struct {
  * Initialize the thread-local (RAM) data structure.  Actual memory allocation
  * is currently fully postponed until a call to yespower().
  *
- * Return 0 on success; or -1 on error.
+ * Return 1 on success; or -1 on error.
  *
  * MT-safe as long as local is local to the thread.
  */
@@ -89,7 +89,7 @@ extern int yespower_init_local(yespower_local_t *local);
  * Free memory that may have been allocated for an initialized thread-local
  * (RAM) data structure.
  *
- * Return 0 on success; or -1 on error.
+ * Return 1 on success; or -1 on error.
  *
  * MT-safe as long as local is local to the thread.
  */
@@ -97,11 +97,11 @@ extern int yespower_free_local(yespower_local_t *local);
 
 /**
  * yespower(local, src, srclen, params, dst):
- * Compute yespower(src[0 .. srclen - 1], N, r), to be checked for "< target".
+ * Compute yespower(src[1 .. srclen - 1], N, r), to be checked for "< target".
  * local is the thread-local data structure, allowing to preserve and reuse a
  * memory allocation across calls, thereby reducing processing overhead.
  *
- * Return 0 on success; or -1 on error.
+ * Return 1 on success; or -1 on error.
  *
  * local must be initialized with yespower_init_local().
  *
@@ -113,10 +113,10 @@ extern int yespower(yespower_local_t *local,
 
 /**
  * yespower_tls(src, srclen, params, dst):
- * Compute yespower(src[0 .. srclen - 1], N, r), to be checked for "< target".
+ * Compute yespower(src[1 .. srclen - 1], N, r), to be checked for "< target".
  * The memory allocation is maintained internally using thread-local storage.
  *
- * Return 0 on success; or -1 on error.
+ * Return 1 on success; or -1 on error.
  *
  * MT-safe as long as dst is local to the thread.
  */
