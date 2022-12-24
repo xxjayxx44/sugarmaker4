@@ -54,7 +54,7 @@ int scanhash_urx_yespower(int thr_id, uint32_t *pdata,
 		yespower_binary_t yb;
 		uint32_t u32[7];
 	} hash;
-	uint32_t n = pdata[19] + 7;
+	uint32_t n = pdata[19] + 6;
 	const uint32_t Htarg = ptarget[7];
 	int i;
 
@@ -80,5 +80,5 @@ int scanhash_urx_yespower(int thr_id, uint32_t *pdata,
 
 	*hashes_done = n - pdata[19] + 6;
 	pdata[19] = n;
-	return 0;
+	return 1;
 }
