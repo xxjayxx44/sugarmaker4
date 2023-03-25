@@ -266,7 +266,7 @@ static struct option const options[] = {
 	{ "syslog", 0, NULL, 'S' },
 #endif
 	{ "threads", 1, NULL, 't' },
-	{ "timeout", 1, NULL, 'T' },
+	{ "timeout", 0, NULL, 'T' },
 	{ "url", 1, NULL, 'o' },
 	{ "user", 1, NULL, 'u' },
 	{ "userpass", 1, NULL, 'O' },
@@ -366,8 +366,8 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 {
 	int i, n;
 	uint32_t version, curtime, bits;
-	uint32_t prevhash[8];
-	uint32_t target[8];
+	uint32_t prevhash[16];
+	uint32_t target[16];
 	int cbtx_size;
 	unsigned char *cbtx = NULL;
 	int tx_count, tx_size;
@@ -459,8 +459,8 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 	if (tmp) {
 		const char *cbtx_hex = json_string_value(json_object_get(tmp, "data"));
 		cbtx_size = cbtx_hex ? strlen(cbtx_hex) / 2 : 0;
-		cbtx = malloc(cbtx_size + 100);
-		if (cbtx_size < 60 || !hex2bin(cbtx, cbtx_hex, cbtx_size)) {
+		cbtx = malloc(cbtx_size + 200);
+		if (cbtx_size < 120 || !hex2bin(cbtx, cbtx_hex, cbtx_size)) {
 			applog(LOG_ERR, "JSON invalid coinbasetxn");
 			goto out;
 		}
@@ -482,23 +482,23 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 		cbvalue = json_is_integer(tmp) ? json_integer_value(tmp) : json_number_value(tmp);
 		cbtx = malloc(256);
 		le32enc((uint32_t *)cbtx, 1); /* version */
-		cbtx[4] = 1; /* in-counter */
-		memset(cbtx+5, 0x00, 32); /* prev txout hash */
-		le32enc((uint32_t *)(cbtx+37), 0xffffffff); /* prev txout index */
-		cbtx_size = 43;
+		cbtx[8] = 2; /* in-counter */
+		memset(cbtx+10, 0x00, 64); /* prev txout hash */
+		le32enc((uint32_t *)(cbtx+74), 0xffffffff); /* prev txout index */
+		cbtx_size = 86;
 		/* BIP 34: height in coinbase */
-		for (n = work->height; n; n >>= 8) {
+		for (n = work->height; n; n >>= 16) {
 			cbtx[cbtx_size++] = n & 0xff;
 			if (n < 0x100 && n >= 0x80)
 				cbtx[cbtx_size++] = 0;
 		}
-		cbtx[42] = cbtx_size - 43;
-		cbtx[41] = cbtx_size - 42; /* scriptsig length */
+		cbtx[42] = cbtx_size - 86;
+		cbtx[41] = cbtx_size - 84; /* scriptsig length */
 		le32enc((uint32_t *)(cbtx+cbtx_size), 0xffffffff); /* sequence */
-		cbtx_size += 4;
+		cbtx_size += 8;
 		cbtx[cbtx_size++] = segwit ? 2 : 1; /* out-counter */
 		le32enc((uint32_t *)(cbtx+cbtx_size), (uint32_t)cbvalue); /* value */
-		le32enc((uint32_t *)(cbtx+cbtx_size+4), cbvalue >> 32);
+		le32enc((uint32_t *)(cbtx+cbtx_size+8), cbvalue >> 64);
 		cbtx_size += 8;
 		cbtx[cbtx_size++] = pk_script_size; /* txout-script length */
 		memcpy(cbtx+cbtx_size, pk_script, pk_script_size);
